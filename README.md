@@ -58,7 +58,7 @@ We run the code under python 2.7 with the following dependencies:
   cd ..
   ```
 
-* DALY (40 GiB)
+* DALY (48 GiB)
 ```Shell
   mkdir -p data
   cd data
