@@ -58,7 +58,7 @@ We run the code under python 2.7 with the following dependencies:
   cd ..
   ```
 
-* DALY (176 GiB)
+* DALY (40 GiB)
 ```Shell
   mkdir -p data
   cd data
@@ -75,5 +75,5 @@ We run the code under python 2.7 with the following dependencies:
 |    DALY   |    [script](https://github.com/jalayrac/weakactionloc/blob/master/scripts/DALY/video_level.sh)   | [script](https://github.com/jalayrac/weakactionloc/blob/master/scripts/DALY/shot_level.sh) |                                                -                                                |    [script](https://github.com/jalayrac/weakactionloc/blob/master/scripts/DALY/temporal.sh)   |                                                  -                                                 |    [script](https://github.com/jalayrac/weakactionloc/blob/master/scripts/DALY/1BB.sh)   |    [script](https://github.com/jalayrac/weakactionloc/blob/master/scripts/DALY/1BB.sh)   |    [script](https://github.com/jalayrac/weakactionloc/blob/master/scripts/DALY/temp_3BB.sh)   |                                                   -                                                   |
 
 
-NB: we provide the calibration files that were obtained by validation. .
+NB: we provide the calibration files (threshold values) that were obtained by validation as described in the paper. We will release the code for this calibration in a future release.
 
