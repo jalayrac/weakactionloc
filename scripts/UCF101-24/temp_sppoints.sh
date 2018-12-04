@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+python launcher.py --res_dir './data/UCF101-24/res/' --datasetname 'UCF101' --path_tracks './data/UCF101-24/tracks/linked_detectron_tracks_0.2/' --path_log_eval './log/' --n_iterations '30000' --cache_dir './data/UCF101-24/cache' --cstrs_name 'spot_on	' --track_class_agnostic --write_eval 'True' --path_list './data/UCF101-24/list/' --path_info './data/UCF101-24/infos/linked_detectron_tracks_0.2_SCALING_sqrt2' --use_calibration --prepend_name 'UCF101_detectron_KLT' --n_actions '25'

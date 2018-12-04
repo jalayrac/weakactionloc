@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+python launcher.py --res_dir './data/DALY/res/' --datasetname 'DALY' --path_tracks './data/DALY/tracks/linked_detectron_tracks/' --path_log_eval './log/' --n_iterations '30000' --cache_dir './data/DALY/cache' --cstrs_name 'at_least_one_per_instance_unit_time' --track_class_agnostic --write_eval 'True' --path_list './data/DALY/list/' --path_info './data/DALY/infos/linked_detectron_tracks' --use_calibration --prepend_name 'DALY_detectron_KLT' --n_actions '11'
