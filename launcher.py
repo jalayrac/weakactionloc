@@ -16,20 +16,13 @@ import re
 BIAS_VALUE = 100
 
 
-def load_feats_and_gts(
-        mode,
-        path_list,
-        prepend_name,
-        feat_type,
-        group_by,
-        sp_iou_thresh,
-        cache_dir,
-        path_tracks,
-        path_info,
-        n_actions):
+def load_feats_and_gts(mode, path_list, prepend_name, feat_type, group_by,
+                       sp_iou_thresh, cache_dir, path_tracks, path_info,
+                       n_actions):
     print('Dealing with features of {} set'.format(mode))
     if mode == 'val':
-        list_file = '{}/OF_vidlist_{}1.txt'.format(path_list, 'valtrainRate10_train')
+        list_file = '{}/OF_vidlist_{}1.txt'.format(path_list,
+                                                   'valtrainRate10_train')
     else:
         list_file = '{}/OF_vidlist_{}1.txt'.format(path_list, mode)
     with open(list_file, 'r') as f_list:
@@ -37,8 +30,8 @@ def load_feats_and_gts(
         or_list_vid = [x.strip().split(' ')[0] for x in or_list_vid]
 
     # For each video get the data.
-    name_feat = 'features_{}_gb_{}_{}_{}_spth_{}.pkl'.format(prepend_name, group_by,
-                                                             mode, feat_type, sp_iou_thresh)
+    name_feat = 'features_{}_gb_{}_{}_{}_spth_{}.pkl'.format(
+        prepend_name, group_by, mode, feat_type, sp_iou_thresh)
     path_feat = os.path.join(cache_dir, name_feat)
 
     if os.path.isfile(path_feat):
@@ -73,7 +66,8 @@ def load_feats_and_gts(
             print 'Missing: {}'.format(v)
 
     for v in list_vid:
-        assert v in or_list_vid, 'Wrong features were loaded: {} is not in the input list. Remove cache?'.format(v)
+        assert v in or_list_vid, 'Wrong features were loaded: {} is not in the input list. Remove cache?'.format(
+            v)
 
     dim = feats[0].shape[1]
     ntracklets = 0
@@ -130,31 +124,15 @@ def launcher(
     # Get the features and GT.
     if need_feat_init:
         feats_train, labels_train, list_vid = load_feats_and_gts(
-            mode,
-            path_list,
-            prepend_name,
-            feat_type,
-            group_by,
-            sp_iou_thresh,
-            cache_dir,
-            path_tracks,
-            path_info,
-            n_actions)
+            mode, path_list, prepend_name, feat_type, group_by, sp_iou_thresh,
+            cache_dir, path_tracks, path_info, n_actions)
 
     validation_info = None
     if need_feat_init:
         if val_eval:
             feats_val, labels_val, _ = load_feats_and_gts(
-                'test',
-                path_list,
-                prepend_name,
-                feat_type,
-                group_by,
-                sp_iou_thresh,
-                cache_dir,
-                path_tracks,
-                path_info,
-                n_actions)
+                'test', path_list, prepend_name, feat_type, group_by,
+                sp_iou_thresh, cache_dir, path_tracks, path_info, n_actions)
             validation_info = {'gts': labels_val, 'feats': feats_val}
 
     # Get the at least one constraints for the training set.
@@ -198,15 +176,12 @@ def launcher(
     asgn_train = []
 
     list_at_least_one_cstr = [
-            'at_least_one_per_instance',
-            'at_least_one_per_instance_unit_time',
-            'fully_supervised',
-            'spot_on',
-            'at_least_one_per_temporal_point_unit_time',
-            'at_least_one_per_instance_unit_time_with_keyframes',
-            'at_least_one_per_temporal_point_unit_time_with_keyframes',
-            'at_least_one_clip_level',
-            'at_least_one_shot_level'
+        'at_least_one_per_instance', 'at_least_one_per_instance_unit_time',
+        'fully_supervised', 'spot_on',
+        'at_least_one_per_temporal_point_unit_time',
+        'at_least_one_per_instance_unit_time_with_keyframes',
+        'at_least_one_per_temporal_point_unit_time_with_keyframes',
+        'at_least_one_clip_level', 'at_least_one_shot_level'
     ]
     if not need_init:
         at_least_one_solver = None
@@ -236,7 +211,8 @@ def launcher(
 
             for _ in range(n_rdm_init):
                 rand_grad = np.random.randn(y.shape[0], y.shape[1])
-                asgn_init += 1.0 / n_rdm_init * at_least_one_solver.solve(cstr, rand_grad)
+                asgn_init += 1.0 / n_rdm_init * at_least_one_solver.solve(
+                    cstr, rand_grad)
 
             asgn_train.append(asgn_init)
 
@@ -262,18 +238,19 @@ def launcher(
     path_w = os.path.join(path_out, name_w)
 
     call('mkdir -p {}'.format(path_out), shell=True)
-   
+
     if video_eval_only:
         weights = None
         pass
     else:
-        test_fun = None 
+        test_fun = None
         if os.path.isfile(path_w):
             with open(path_w) as f_w:
                 weights = pickle.load(f_w)
         else:
             # Launch FW optim.
-            path_log_eval = os.path.join(path_log_eval, exp_name) if path_log_eval is not None else None
+            path_log_eval = os.path.join(
+                path_log_eval, exp_name) if path_log_eval is not None else None
             print('Launching the BCFW optim...')
             asgn_final, weights = bcfw_diffrac.solver(
                 feats_train,
@@ -288,9 +265,11 @@ def launcher(
                 n_iterations=n_iterations,
                 objective_frequency=250,
                 eval_frequency=eval_frequency,
-                eval_function=eval_functions.MAP(n_actions - 1, path_save=path_log_eval, save_pr_curves=save_pr_curves),
-                validation_info=validation_info
-                )
+                eval_function=eval_functions.MAP(
+                    n_actions - 1,
+                    path_save=path_log_eval,
+                    save_pr_curves=save_pr_curves),
+                validation_info=validation_info)
             # Save assignmnent.
             np.save(path_asgn, asgn_final)
             # save final classifier
@@ -299,7 +278,8 @@ def launcher(
 
     if calibrate and not use_calibration:
         # need to test the validation videos to calibrate
-        list_file = '{}/OF_vidlist_{}1.txt'.format(path_list, 'valtrainRate10_val')
+        list_file = '{}/OF_vidlist_{}1.txt'.format(path_list,
+                                                   'valtrainRate10_val')
     else:
         list_file = '{}/OF_vidlist_{}1.txt'.format(path_list, 'test')
     # Evaluate on test data.
@@ -329,9 +309,10 @@ def launcher(
             print 'Load calibration from:\n{}'.format(calib_path)
             with open(calib_path) as f:
                 calibration = pickle.load(f)
-            loc_th = np.zeros((n_actions-1, len(video_eval_args['iou'])))
+            loc_th = np.zeros((n_actions - 1, len(video_eval_args['iou'])))
             for i, iou in enumerate(video_eval_args['iou']):
-                loc_th[:, i] = calibration[iou]  # Set one th per action, per iou.
+                loc_th[:, i] = calibration[
+                    iou]  # Set one th per action, per iou.
         else:
             loc_th = video_eval_args['loc_th']
 
@@ -339,15 +320,16 @@ def launcher(
         call('rm -rf  {}/evaluation_cache'.format(path_out), shell=True)
 
         # create instance to eval video mAP
-        ev = evaluation.Evaluation(video_eval_args['datasetname'],
-                                   [path_out], list_file,
-                                   video_eval_args['iou'],
-                                   smooth_window=25,
-                                   loc_th=loc_th,
-                                   track_class_agnostic=video_eval_args['track_class_agnostic'],
-                                   force_no_regressor=True,
-                                   nthreads=8,
-                                   one_th_per_iou=use_calibration)
+        ev = evaluation.Evaluation(
+            video_eval_args['datasetname'], [path_out],
+            list_file,
+            video_eval_args['iou'],
+            smooth_window=25,
+            loc_th=loc_th,
+            track_class_agnostic=video_eval_args['track_class_agnostic'],
+            force_no_regressor=True,
+            nthreads=8,
+            one_th_per_iou=use_calibration)
         return ev
 
 
@@ -366,24 +348,40 @@ if __name__ == '__main__':
 
     # Parse args.
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cache_dir', default='/sequoia/data2/jalayrac/nips2017weakpose/cache/')
-    parser.add_argument('--res_dir', default='/sequoia/data2/jalayrac/nips2017weakpose/')
-    parser.add_argument('--path_info', default='/sequoia/data2/gcheron/DALY/mytracksK5_50k')
-    parser.add_argument('--path_tracks', default=
-    '/sequoia/data2/gcheron/pytorch/diffrac_action_localization/DALY/results/mytracksK5_50k/tracks')
+    parser.add_argument(
+        '--cache_dir',
+        default='/sequoia/data2/jalayrac/nips2017weakpose/cache/')
+    parser.add_argument(
+        '--res_dir', default='/sequoia/data2/jalayrac/nips2017weakpose/')
+    parser.add_argument(
+        '--path_info', default='/sequoia/data2/gcheron/DALY/mytracksK5_50k')
+    parser.add_argument(
+        '--path_tracks',
+        default=
+        '/sequoia/data2/gcheron/pytorch/diffrac_action_localization/DALY/results/mytracksK5_50k/tracks'
+    )
     parser.add_argument('--eval_frequency', type=int, default=500)
     parser.add_argument('--path_log_eval', type=str, default=None)
     parser.add_argument('--save_pr_curves', action='store_true', default=False)
     parser.add_argument('--no_init', action='store_true', default=False)
     parser.add_argument('--no_feat_init', action='store_true', default=False)
     parser.add_argument('--val_eval', action='store_true', default=False)
-    parser.add_argument('--calibrate', action='store_true', default=False,
+    parser.add_argument(
+        '--calibrate',
+        action='store_true',
+        default=False,
         help='learn/save the calibration parameters on the validation set')
-    parser.add_argument('--use_calibration', action='store_true', default=False,
-        help=('use the learnt calibration parameters, when combined with --calibrate, model trained on (train - val) '
-              'is used, model trained on the whole train set is used otherwise'))
-    parser.add_argument('--video_eval_only', action='store_true', default=False)
-    parser.add_argument('--track_class_agnostic', action='store_true', default=False)
+    parser.add_argument(
+        '--use_calibration',
+        action='store_true',
+        default=False,
+        help=
+        ('use the learnt calibration parameters, when combined with --calibrate, model trained on (train - val) '
+         'is used, model trained on the whole train set is used otherwise'))
+    parser.add_argument(
+        '--video_eval_only', action='store_true', default=False)
+    parser.add_argument(
+        '--track_class_agnostic', action='store_true', default=False)
     parser.add_argument('--path_list', default='/sequoia/data2/gcheron/DALY')
     parser.add_argument('--n_iterations', type=int, default=0)
     parser.add_argument('--prepend_name', type=str, default='DALY_gtrack')
@@ -410,28 +408,22 @@ if __name__ == '__main__':
     dname = args.datasetname
 
     if args.calibrate:
-       tths = np.linspace(-0.2, 0.4, 13) #[-0.2:0.05:0.4]
-       tths = np.concatenate( (np.array([-1e7]), tths)) # add -Inf
+        tths = np.linspace(-0.2, 0.4, 13)  #[-0.2:0.05:0.4]
+        tths = np.concatenate((np.array([-1e7]), tths))  # add -Inf
 
     else:
-       tths = np.linspace(-0.1, 0.1, 11)
+        tths = np.linspace(-0.1, 0.1, 11)
+        # use_calibration will be removed in a future release (only calibrate variable will be used)
+        assert args.use_calibration, "if not calibrate, an existing calibration must be used (use_calibration)"
 
-    if dname == 'DALY':
-        loc_th = np.repeat(tths[None, :], 10, 0) # 10 x len(tths)
-    elif dname == 'UCF101':
-        if args.calibrate:
-            loc_th = np.repeat(tths[None, :], 24, 0) # 24 x len(tths)
-        else:
-            loc_th = np.zeros((24,len(tths)))
-            for i,tth in enumerate(tths):
-                loc_th[:,i]=np.array([
-                    tth,tth,-1e7,tth,tth,tth,-1e7,-1e7,tth,-1e7,-1e7,-1e7,-1e7,-1e7,tth,
-                    -1e7,-1e7,-1e7,-1e7,tth,tth,-1e7,tth,-1e7])
+    loc_th = np.repeat(tths[None, :], args.n_actions - 1, 0)
 
-    video_eval_args = {'datasetname': dname,
-                       'iou': [ 0.2, 0.5],
-                       'track_class_agnostic': args.track_class_agnostic,
-                       'loc_th': loc_th}
+    video_eval_args = {
+        'datasetname': dname,
+        'iou': [0.2, 0.5],
+        'track_class_agnostic': args.track_class_agnostic,
+        'loc_th': loc_th
+    }
 
     # Launch the job.
     print 'running with args:'
@@ -471,7 +463,8 @@ if __name__ == '__main__':
         if args.calibrate and not args.use_calibration:
             # not that if use_calibration, it would save calibration on test...
             calib_path = ev.trackpath[0] + '/../calibration.pkl'
-            assert not os.path.exists(calib_path), ('calibration already exists!\n{}'.format(calib_path))
+            assert not os.path.exists(calib_path), (
+                'calibration already exists!\n{}'.format(calib_path))
             print 'writting calibration in :\n{}'.format(calib_path)
             with open(calib_path, 'wb') as f:
                 pickle.dump(calibration, f)
